@@ -215,7 +215,8 @@ def on_connect(connection, event):
             connection.topic('#ghostbusters', t['topic'])
             time.sleep(2)
         elif 'narration' in t:
-            connection.privmsg('#ghostbusters', t['narration'])
+            for i in xrange(0, len(t['narration']), 500):
+                connection.privmsg('#ghostbusters', t['narration'][i:i+500])
             time.sleep(len(t['narration'].split()) * 0.5)
 
 if options.ssl:
