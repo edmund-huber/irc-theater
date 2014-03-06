@@ -1,5 +1,5 @@
-=
 irc-theater
+=
 
 Playback of neat old movies in IRC.
 
@@ -11,7 +11,7 @@ Playback of neat old movies in IRC.
                  fallen books.
 ```
 
-=
 Now showing
+=
 
 Ghostbusters (1984)
