@@ -197,15 +197,18 @@ def on_connect(connection, event):
     # Say things!
     for t in things:
         if 'action' in t and 'dialogue' in t['action']:
-            connection.privmsg('#ghostbusters', '%s: %s' % (t['character'], t['action']['dialogue']))
+            dialogue = t['action']['dialogue']
+            connection.privmsg('#ghostbusters', '%s: %s' % (t['character'], dialogue))
+            time.sleep(len(dialogue.split()) * 0.5)
         elif 'action' in t and 'movement' in t['action']:
             connection.action('#ghostbusters', '%s: %s' % (t['character'], t['action']['movement']))
+            time.sleep(5)
         elif 'topic' in t:
             connection.topic('#ghostbusters', t['topic'])
+            time.sleep(2)
         elif 'narration' in t:
             connection.privmsg('#ghostbusters', t['narration'])
-        time.sleep(5)
-
+            time.sleep(len(t['narration'].split()) * 0.5)
 
 ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
 client = irc.client.IRC()
