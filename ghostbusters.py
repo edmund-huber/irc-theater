@@ -189,8 +189,16 @@ except StopIteration:
 # IRC magic!
 
 import irc.client
+import optparse
 import ssl
 import time
+
+parser = optparse.OptionParser()
+parser.add_option('--pass', action='store', type='string', dest='password', default=None)
+parser.add_option('--port', action='store', type='int', dest='port', default=6667)
+parser.add_option('--ssl', action='store_true', dest='ssl', default=False)
+options, args = parser.parse_args()
+host, = args
 
 def on_connect(connection, event):
     connection.join('#ghostbusters')
@@ -210,8 +218,11 @@ def on_connect(connection, event):
             connection.privmsg('#ghostbusters', t['narration'])
             time.sleep(len(t['narration'].split()) * 0.5)
 
-ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+if options.ssl:
+    connect_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+else:
+    connect_factory = irc.connection.Factory()
 client = irc.client.IRC()
-connection = client.server().connect('irc.xelpers.org', 6697, 'venkman', password='smellyoulater', connect_factory=ssl_factory)
+connection = client.server().connect(host, options.port, 'venkman', password=options.password, connect_factory=connect_factory)
 connection.add_global_handler('welcome', on_connect)
 client.process_forever()
