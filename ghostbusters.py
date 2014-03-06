@@ -192,28 +192,23 @@ import irc.client
 import ssl
 import time
 
-def on_connect(connection):
-    print 'joining #ghostbusters..'
+def on_connect(connection, event):
     connection.join('#ghostbusters')
-
-def on_anything(a, b):
-    print 'hi %s %s' % (a, b)
-
-#ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
-client = irc.client.IRC()
-character_to_connection = {}
-for character, actor in character_to_actor.items()[:1]:
-    connection = client.server().connect('localhost', 6667, actor)#'irc.xelpers.org', 6697, actor, password='smellyoulater')
-    connection.add_global_handler('welcome', on_connect)
-    connection.add_global_handler('all_events', on_anything)
-    character_to_connection[character] = connection
-
-# Wait long enough for connections.
-time.sleep(10)
-
-# Say things!
-for t in things:
-    if 'action' in t and 'dialogue' in t['action'] and t['character'] in character_to_connection:
-        print 'saying something..'
-        character_to_connection[t['character']].privmsg('#ghostbusters', t['action']['dialogue'])
+    # Say things!
+    for t in things:
+        if 'action' in t and 'dialogue' in t['action']:
+            connection.privmsg('#ghostbusters', '%s: %s' % (t['character'], t['action']['dialogue']))
+        elif 'action' in t and 'movement' in t['action']:
+            connection.action('#ghostbusters', '%s: %s' % (t['character'], t['action']['movement']))
+        elif 'topic' in t:
+            connection.topic('#ghostbusters', t['topic'])
+        elif 'narration' in t:
+            connection.privmsg('#ghostbusters', t['narration'])
         time.sleep(5)
+
+
+ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+client = irc.client.IRC()
+connection = client.server().connect('irc.xelpers.org', 6697, 'venkman', password='smellyoulater', connect_factory=ssl_factory)
+connection.add_global_handler('welcome', on_connect)
+client.process_forever()
