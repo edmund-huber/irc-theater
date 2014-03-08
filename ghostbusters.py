@@ -205,8 +205,9 @@ def on_connect(connection, event):
     # Say things!
     for t in things:
         if 'action' in t and 'dialogue' in t['action']:
-            dialogue = t['action']['dialogue']
-            connection.privmsg('#ghostbusters', '%s: %s' % (t['character'], dialogue))
+            dialogue = '%s: %s' % (t['character'], t['action']['dialogue'])
+            for i in xrange(0, len(dialogue), 500):
+                connection.privmsg('#ghostbusters', dialogue[i:i+500])
             time.sleep(len(dialogue.split()) * 0.5)
         elif 'action' in t and 'movement' in t['action']:
             connection.action('#ghostbusters', '%s: %s' % (t['character'], t['action']['movement']))
