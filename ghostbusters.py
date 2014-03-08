@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import inspect
+import itertools
 import json
 import re
 import sys
@@ -203,11 +204,11 @@ host, = args
 def on_connect(connection, event):
     connection.join('#ghostbusters')
     # Say things!
-    for t in things:
+    for t in itertools.cycle(things):
         if 'action' in t and 'dialogue' in t['action']:
             dialogue = '%s: %s' % (t['character'], t['action']['dialogue'])
-            for i in xrange(0, len(dialogue), 500):
-                connection.privmsg('#ghostbusters', dialogue[i:i+500])
+            for i in xrange(0, len(dialogue), 400):
+                connection.privmsg('#ghostbusters', dialogue[i:i+400])
             time.sleep(len(dialogue.split()) * 0.5)
         elif 'action' in t and 'movement' in t['action']:
             connection.action('#ghostbusters', '%s: %s' % (t['character'], t['action']['movement']))
@@ -216,8 +217,8 @@ def on_connect(connection, event):
             connection.topic('#ghostbusters', t['topic'])
             time.sleep(2)
         elif 'narration' in t:
-            for i in xrange(0, len(t['narration']), 500):
-                connection.privmsg('#ghostbusters', t['narration'][i:i+500])
+            for i in xrange(0, len(t['narration']), 400):
+                connection.privmsg('#ghostbusters', t['narration'][i:i+400])
             time.sleep(len(t['narration'].split()) * 0.5)
 
 if options.ssl:
