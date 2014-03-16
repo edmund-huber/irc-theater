@@ -199,26 +199,29 @@ parser.add_option('--pass', action='store', type='string', dest='password', defa
 parser.add_option('--port', action='store', type='int', dest='port', default=6667)
 parser.add_option('--ssl', action='store_true', dest='ssl', default=False)
 options, args = parser.parse_args()
-host, = args
+host, theater_chan, theater_pass = args
+theater_chan = '#%s' % theater_chan
 
 def on_connect(connection, event):
-    connection.join('#ghostbusters')
+    connection.join(theater_chan)
+    connection.send_raw('theater identify %s %s' % (theater_chan, theater_pass))
+    connection.privmsg(theater_chan, '??')
     # Say things!
     for t in itertools.cycle(things):
         if 'action' in t and 'dialogue' in t['action']:
-            dialogue = '%s: %s' % (t['character'], t['action']['dialogue'])
+            dialogue = t['action']['dialogue']
             for i in xrange(0, len(dialogue), 400):
-                connection.privmsg('#ghostbusters', dialogue[i:i+400])
+                connection.send_raw('theater privmsg %s %s :%s' % (theater_chan, t['character'].lower(), dialogue[i:i+400]))
             time.sleep(len(dialogue.split()) * 0.5)
         elif 'action' in t and 'movement' in t['action']:
-            connection.action('#ghostbusters', '%s: %s' % (t['character'], t['action']['movement']))
+            connection.send_raw('theater action %s %s :%s' % (theater_chan, t['character'].lower(), t['action']['movement']))
             time.sleep(5)
         elif 'topic' in t:
-            connection.topic('#ghostbusters', t['topic'])
+            connection.notice(theater_chan, t['topic'])
             time.sleep(2)
         elif 'narration' in t:
             for i in xrange(0, len(t['narration']), 400):
-                connection.privmsg('#ghostbusters', t['narration'][i:i+400])
+                connection.notice(theater_chan, t['narration'][i:i+400])
             time.sleep(len(t['narration'].split()) * 0.5)
 
 if options.ssl:
